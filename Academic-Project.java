@@ -13,17 +13,11 @@ import javax.crypto.spec.SecretKeySpec;
  *      checks password strength, generates strong passwords, and persistently stores data
  *      in a SQL Database or persistent local storage across application restarts.
  * 
- * NOTE: All SQL Database Schemas, Table DDLs, Cryptography, and Java logic are fully 
- *       self-contained in this SINGLE file.
- */
+ **/
 public class SecurePassGuard {
 
     private static final Scanner scanner = new Scanner(System.in);
     private static final String DATA_FILE = "securepassguard_data.dat";
-    
-    // -----------------------------------------------------------------
-    // EMBEDDED SQL DATABASE DDL SCHEMAS
-    // -----------------------------------------------------------------
     public static final String SQL_SCHEMA_USERS = 
         "CREATE TABLE IF NOT EXISTS users (\n" +
         "    id INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
@@ -42,19 +36,13 @@ public class SecurePassGuard {
         "    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n" +
         "    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE\n" +
         ");";
-
-    // JDBC Connection details
     private static final String DB_URL = "jdbc:sqlite:securepassguard.db";
     private static Connection conn = null;
     private static boolean useDatabase = false;
-
-    // Current Logged-in User Session
     private static User currentUser = null;
-
-    // Persistent Storage Map for fallback persistence across process restarts
     private static final Map<String, User> memoryUserDb = new HashMap<>();
 
-    // AES Encryption Key setup (128-bit key derived via SHA-256)
+    
     private static final String AES_SECRET = "SecurePassGuardSecretKey123!";
     private static SecretKeySpec secretKeySpec;
 
@@ -70,7 +58,7 @@ public class SecurePassGuard {
         }
     }
 
-    // Model Classes
+    
     static class User {
         int id;
         String username;
@@ -99,7 +87,7 @@ public class SecurePassGuard {
     }
 
     public static void main(String[] args) {
-        // Initialize Storage (SQL Database or File Persistence)
+        
         initStorage();
 
         System.out.println("==================================================");
@@ -158,9 +146,6 @@ public class SecurePassGuard {
         }
     }
 
-    // -----------------------------------------------------------------
-    // Storage & Database Initialization (SQL + File Persistence)
-    // -----------------------------------------------------------------
     private static void initStorage() {
         try {
             conn = DriverManager.getConnection(DB_URL);
@@ -171,7 +156,7 @@ public class SecurePassGuard {
             stmt.execute(SQL_SCHEMA_CREDENTIALS);
             stmt.close();
         } catch (Exception e) {
-            // Fallback to File Persistence mode if JDBC driver is not on classpath
+           
             useDatabase = false;
             loadDataFromFile();
         }
@@ -249,9 +234,7 @@ public class SecurePassGuard {
         System.out.println("-------------------------------------------");
     }
 
-    // -----------------------------------------------------------------
-    // 1. User Registration, Authentication & Logout
-    // -----------------------------------------------------------------
+   
     private static void registerUser() {
         System.out.println("\n--- USER REGISTRATION ---");
         System.out.print("Username: ");
@@ -263,7 +246,7 @@ public class SecurePassGuard {
             return;
         }
 
-        // Check if username is already registered
+        
         User existing = findUserByUsername(username);
         if (existing != null) {
             System.out.println("Username '" + username + "' is already registered!");
@@ -387,9 +370,7 @@ public class SecurePassGuard {
         return currentUser != null;
     }
 
-    // -----------------------------------------------------------------
-    // 2. Password Strength Checker
-    // -----------------------------------------------------------------
+    
     private static void checkPasswordStrength() {
         System.out.println("\n--- PASSWORD STRENGTH CHECKER ---");
         
@@ -439,9 +420,6 @@ public class SecurePassGuard {
         }
     }
 
-    // -----------------------------------------------------------------
-    // 3. Password Generator
-    // -----------------------------------------------------------------
     private static void generatePassword() {
         System.out.println("\n--- PASSWORD GENERATOR ---");
         System.out.print("Required Length: ");
@@ -495,9 +473,6 @@ public class SecurePassGuard {
         return new String(charArray);
     }
 
-    // -----------------------------------------------------------------
-    // 4. Password Manager
-    // -----------------------------------------------------------------
     private static void handlePasswordManager() {
         if (!ensureAuthenticated()) {
             System.out.println("Authentication failed. Cannot access Password Manager.");
@@ -777,9 +752,7 @@ public class SecurePassGuard {
         }
     }
 
-    // -----------------------------------------------------------------
-    // Cryptography & Utility Helpers
-    // -----------------------------------------------------------------
+   
     public static String encrypt(String strToEncrypt) {
         try {
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
